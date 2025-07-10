@@ -1,7 +1,5 @@
-'use strict';
-
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../db.js');
+const { sequelize } = require('../db');
 
 const Expense = sequelize.define(
   'Expense',
@@ -11,7 +9,7 @@ const Expense = sequelize.define(
       allowNull: false,
     },
     spentAt: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     title: {
@@ -31,11 +29,8 @@ const Expense = sequelize.define(
   },
   {
     tableName: 'expenses',
-    createdAt: false,
-    updatedAt: false,
+    timestamps: false,
   },
 );
 
-module.exports = {
-  Expense,
-};
+module.exports = { Expense };
