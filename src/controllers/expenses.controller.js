@@ -1,62 +1,57 @@
-const userService = require('../services/users.service');
+const expensesService = require('../services/expenses.service');
+const usersService = require('../services/users.service');
 
-const get = async (_, res) => {
-  const users = await userService.getAllUsers();
+const get = async (req, res) => {
+  const expenses = await expensesService.getAllExpenses(req.query);
 
-  res.status(200).json(users);
+  res.status(200).json(expenses);
 };
 
 const getOne = async (req, res) => {
   const { id } = req.params;
 
-  const user = await userService.getUserById(id);
+  const expense = await expensesService.getExpenseById(id);
 
-  if (!user) {
+  if (!expense) {
     return res.sendStatus(404);
   }
 
-  res.status(200).json(user);
+  res.status(200).json(expense);
 };
 
 const create = async (req, res) => {
-  const { name } = req.body;
+  const expenseData = req.body;
+  const user = await usersService.getUserById(expenseData.userId);
 
-  if (!name) {
+  if (!user) {
     return res.sendStatus(400);
   }
 
-  const newUser = await userService.createUser(name);
+  const newExpense = await expensesService.createExpense(expenseData);
 
-  res.status(201).json(newUser);
+  res.status(201).json(newExpense);
 };
 
 const remove = async (req, res) => {
   const { id } = req.params;
-  const user = await userService.getUserById(id);
 
-  if (!user) {
+  const expense = await expensesService.getExpenseById(id);
+
+  if (!expense) {
     return res.sendStatus(404);
   }
 
-  await userService.removeUser(id);
+  await expensesService.removeExpense(id);
   res.sendStatus(204);
 };
 
 const update = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const updated = await expensesService.updateExpense(id, req.body);
 
-  if (typeof name !== 'string' || !name) {
-    return res.sendStatus(400);
-  }
-
-  const user = await userService.getUserById(id);
-
-  if (!user) {
+  if (!updated) {
     return res.sendStatus(404);
   }
-
-  const updated = await userService.updateUser({ id, name });
 
   res.status(200).json(updated);
 };

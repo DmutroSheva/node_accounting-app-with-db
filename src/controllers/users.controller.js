@@ -1,75 +1,70 @@
-const usersService = require('./users.service');
+const userService = require('../services/users.service');
 
-const getAll = async (req, res) => {
-  const users = await usersService.getAll();
+const get = async (_, res) => {
+  const users = await userService.getAllUsers();
 
-  res.json(users);
+  res.status(200).json(users);
 };
 
 const getOne = async (req, res) => {
-  const id = +req.params.id;
-  const user = await usersService.getById(id);
+  const { id } = req.params;
+
+  const user = await userService.getUserById(id);
 
   if (!user) {
     return res.sendStatus(404);
   }
 
-  res.json(user);
+  res.status(200).json(user);
 };
 
 const create = async (req, res) => {
-  const name = req.body.name;
+  const { name } = req.body;
 
   if (!name) {
     return res.sendStatus(400);
   }
 
-  const user = await usersService.create(name);
+  const newUser = await userService.createUser(name);
 
-  res.status(201).json(user);
+  res.status(201).json(newUser);
 };
 
-const deleteOne = async (req, res) => {
-  const id = +req.params.id;
-
-  const user = await usersService.getById(id);
+const remove = async (req, res) => {
+  const { id } = req.params;
+  const user = await userService.getUserById(id);
 
   if (!user) {
     return res.sendStatus(404);
   }
 
-  const deletedNumber = await usersService.deleteById(id);
-
-  if (deletedNumber) {
-    res.sendStatus(204);
-  } else {
-    res.sendStatus(404);
-  }
+  await userService.removeUser(id);
+  res.sendStatus(204);
 };
 
 const update = async (req, res) => {
-  const id = +req.params.id;
-  const name = req.body.name;
+  const { id } = req.params;
+  const { name } = req.body;
 
-  if (!name) {
+  if (typeof name !== 'string' || !name) {
     return res.sendStatus(400);
   }
 
-  const updatedResult = await usersService.update({ id, name });
+  const user = await userService.getUserById(id);
 
-  if (!updatedResult) {
+  if (!user) {
     return res.sendStatus(404);
   }
 
-  const updatedUser = await usersService.getById(id);
+  const updated = await userService.updateUser({ id, name });
 
-  res.json(updatedUser);
+  res.status(200).json(updated);
 };
 
 module.exports = {
-  getAll,
+  get,
   getOne,
   create,
-  deleteOne,
+  remove,
   update,
 };
